@@ -2,15 +2,15 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: A simple Lambda function deployed via CloudFormation
 
-Parameters:
-  ConnectionArn:
-    Description: The CodeConnections ARN for your source repository.
-    Type: String
-  DeployStack:
-    Default: true
+# Parameters:
+#   ConnectionArn:
+#     Description: The CodeConnections ARN for your source repository.
+#     Type: String
+#   DeployStack:
+#     Default: true
 
-Conditions:
-  DoesItDeploy: !Not [!Equals ['', !Ref DeployStack]]
+# Conditions:
+#   DoesItDeploy: !Not [!Equals ['', !Ref DeployStack]]
 
 
 
