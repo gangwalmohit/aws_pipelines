@@ -1,0 +1,67 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: A simple Lambda function deployed via CloudFormation
+
+Parameters:
+  ConnectionArn:
+    Description: The CodeConnections ARN for your source repository.
+    Type: String
+  DeployStack:
+    Default: true
+
+Conditions:
+  DoesItDeploy: !Not [!Equals ['', !Ref DeployStack]]
+
+
+
+Resources:
+  MyLambdaRole:
+  RoleName: MySimplePythonLambda-Role
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole' # Provides basic CloudWatch logging permissions
+
+  MyPythonLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: MySimplePythonLambda
+      Handler: index.lambda_handler # 'index' is the file name, 'lambda_handler' is the function name
+      Runtime: python3.9 # Specify your desired Python runtime version
+      Code:
+        ZipFile: |
+          import json
+
+          def lambda_handler(event, context):
+              # Your Python code goes here
+              message = "Hello from Lambda!"
+              print(f"Received event: {json.dumps(event)}")
+              return {
+                  'statusCode': 200,
+                  'body': json.dumps(message)
+              }
+      Role: !GetAtt MyLambdaRole.Arn # References the ARN of the IAM role created above
+      MemorySize: 128 # Optional: Adjust memory as needed
+      Timeout: 30 # Optional: Adjust timeout in seconds as needed
+      Tags: # Optional: Add tags for organization
+        - Key: Environment
+          Value: Dev
+        - Key: Project
+          Value: MyLambdaProject
+
+Outputs:
+  LambdaFunctionName:
+    Description: The name of the deployed Lambda function
+    Value: !Ref MyPythonLambdaFunction
+  LambdaFunctionArn:
+    Description: The ARN of the deployed Lambda function
+    Value: !GetAtt MyPythonLambdaFunction.Arn
