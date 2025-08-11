@@ -16,9 +16,9 @@ Description: A simple Lambda function deployed via CloudFormation
 
 Resources:
   MyLambdaRole:
-  RoleName: MySimplePythonLambda-Role
     Type: AWS::IAM::Role
     Properties:
+      RoleName: test-001
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -34,7 +34,7 @@ Resources:
   MyPythonLambdaFunction:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: MySimplePythonLambda
+      FunctionName: test-001
       Handler: index.lambda_handler # 'index' is the file name, 'lambda_handler' is the function name
       Runtime: python3.9 # Specify your desired Python runtime version
       Code:

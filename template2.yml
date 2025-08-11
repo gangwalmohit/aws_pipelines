@@ -8,6 +8,7 @@ Parameters:
     Type: String
     Default: "tiger-demo-2"
   DeployStack:
+    Type: String
     Default: true
 
 # Conditions:
@@ -16,10 +17,10 @@ Parameters:
 
 
 Resources:
-  MyLambdaRole:
-    RoleName: !Sub ${ObjectName}-Role
+  MyLambdaRole:    
     Type: AWS::IAM::Role
     Properties:
+      RoleName: !Sub ${ObjectName}-Role
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -31,6 +32,19 @@ Resources:
               - 'sts:AssumeRole'
       ManagedPolicyArns:
         - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole' # Provides basic CloudWatch logging permissions
+      Policies:
+        - PolicyName: S3Permissions
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Sid: "Allow S3 Access"
+                Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:ListObject
+                  - s3:PutObject
+                Resource:
+                  - arn:aws:s3:::tiger-demo-2025
 
   MyPythonLambdaFunction:
     Type: AWS::Lambda::Function
@@ -41,15 +55,15 @@ Resources:
       Code:
         ZipFile: |
           import json
-
+          print('Loading function')
           def lambda_handler(event, context):
-              # Your Python code goes here
-              message = "Hello from Lambda!"
-              print(f"Received event: {json.dumps(event)}")
-              return {
-                  'statusCode': 200,
-                  'body': json.dumps(message)
-              }
+              #print("Received event: " + json.dumps(event, indent=2))
+              print("value1 = " + event['key1'])
+              print("value2 = " + event['key2'])
+              print("value3 = " + event['key3'])
+              return event['key1']  # Echo back the first key value
+              #raise Exception('Something went wrong')
+
       Role: !GetAtt MyLambdaRole.Arn # References the ARN of the IAM role created above
       MemorySize: 128 # Optional: Adjust memory as needed
       Timeout: 30 # Optional: Adjust timeout in seconds as needed
