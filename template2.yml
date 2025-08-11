@@ -9,16 +9,20 @@ Parameters:
     Default: "tiger-demo-2"
   DeployStack:
     Type: String
-    Default: true
+    Default: "true"
+    AllowedValues:
+      - "true"
+      - "false"
 
-# Conditions:
-#   DoesItDeploy: [!Equals ['', !Ref DeployStack]]
+Conditions:
+  ShouldDeploy: !Equals [!Ref DeployStack, "true"]
 
 
 
 Resources:
   MyLambdaRole:    
     Type: AWS::IAM::Role
+    Condition: ShouldDeploy
     Properties:
       RoleName: !Sub ${ObjectName}-Role
       AssumeRolePolicyDocument:
@@ -37,21 +41,23 @@ Resources:
           PolicyDocument:
             Version: 2012-10-17
             Statement:
-              - Sid: "Allow S3 Access"
+              - Sid: AllowS3Access
                 Effect: Allow
                 Action:
                   - s3:GetObject
-                  - s3:ListObject
+                  - s3:ListBucket
                   - s3:PutObject
                 Resource:
                   - arn:aws:s3:::tiger-demo-2025
+                  - arn:aws:s3:::tiger-demo-2025/*
 
   MyPythonLambdaFunction:
     Type: AWS::Lambda::Function
+    Condition: ShouldDeploy
     Properties:
       FunctionName: !Ref ObjectName
       Handler: index.lambda_handler # 'index' is the file name, 'lambda_handler' is the function name
-      Runtime: python3.9 # Specify your desired Python runtime version
+      Runtime: python3.12 # Specify your desired Python runtime version
       Code:
         ZipFile: |
           import json
@@ -77,6 +83,8 @@ Outputs:
   LambdaFunctionName: 
     Description: The name of the deployed Lambda function
     Value: !Ref MyPythonLambdaFunction
+    Condition: ShouldDeploy
   LambdaFunctionArn:
     Description: The ARN of the deployed Lambda function
     Value: !GetAtt MyPythonLambdaFunction.Arn
+    Condition: ShouldDeploy
