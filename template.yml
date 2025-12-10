@@ -44,7 +44,7 @@ Resources:
 
           def lambda_handler(event, context):
               # Your Python code goes here
-              message = "Hello from Lambda!"
+              message = "Hello from Lambda Function!"
               print(f"Received event: {json.dumps(event)}")
               return {
                   'statusCode': 200,
